@@ -4,11 +4,9 @@ import { within } from '@testing-library/dom';
 import PropertyListing from '../PropertyListing';
 import { fetchWrapper } from '../../../utils';
 
-jest.mock('../../../utils');
-
-let mockId = 1;
-
 const createMockData = (count) => {
+    let mockId = 1;
+
     return Array(count)
         .fill()
         .map(() => {
@@ -30,11 +28,14 @@ const createMockData = (count) => {
         });
 };
 
-fetchWrapper.mockResolvedValue(createMockData(5));
+jest.mock('../../../utils', () => ({
+    fetchWrapper: jest.fn().mockResolvedValue(createMockData(5)),
+}));
 
 describe('PropertyListing', () => {
     it('should render five property cards', async () => {
         render(<PropertyListing />);
+        expect(fetchWrapper).toHaveBeenCalledWith('/properties');
         const propertiesList = screen.getByRole('list');
         const propertyCards = await within(propertiesList).findAllByRole('listitem');
         expect(propertyCards).toHaveLength(5);
